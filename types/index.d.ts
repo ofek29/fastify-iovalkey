@@ -37,5 +37,5 @@ declare namespace fastifyRedis {
   export { fastifyRedis as default }
 }
 
-declare function fastifyRedis(...params: Parameters<FastifyRedisPluginType>): ReturnType<FastifyRedisPluginType>
+declare function fastifyRedis (...params: Parameters<FastifyRedisPluginType>): ReturnType<FastifyRedisPluginType>
 export = fastifyRedis
