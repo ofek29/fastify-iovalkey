@@ -1,7 +1,7 @@
 {
-  "name": "@fastify/redis",
-  "version": "7.0.2",
-  "description": "Plugin to share a common Redis connection across Fastify.",
+  "name": "@fastify/iovalkey",
+  "version": "0.0.0",
+  "description": "Plugin to share a common Valkey connection across Fastify.",
   "main": "index.js",
   "type": "commonjs",
   "types": "types/index.d.ts",
@@ -16,10 +16,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/fastify/fastify-redis.git"
+    "url": "git+https://github.com/ofek29/iovalkey.git"
   },
   "keywords": [
     "fastify",
+    "valkey",
     "redis",
     "database",
     "speed",

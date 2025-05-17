@@ -1,28 +1,28 @@
 import { FastifyPluginCallback } from 'fastify'
-import { Cluster, Redis, RedisOptions } from 'iovalkey'
+import { Cluster, Redis as Valkey, RedisOptions as ValkeyOptions } from 'iovalkey'
 
-type FastifyRedisPluginType = FastifyPluginCallback<fastifyRedis.FastifyRedisPluginOptions>
+type FastifyValkeyPluginType = FastifyPluginCallback<fastifyValkey.FastifyValkeyPluginOptions>
 
 declare module 'fastify' {
   interface FastifyInstance {
-    redis: fastifyRedis.FastifyRedis;
+    iovalkey: fastifyValkey.FastifyValkey;
   }
 }
 
-declare namespace fastifyRedis {
+declare namespace fastifyValkey {
 
-  export interface FastifyRedisNamespacedInstance {
-    [namespace: string]: Redis;
+  export interface FastifyValkeyNamespacedInstance {
+    [namespace: string]: Valkey;
   }
 
-  export type FastifyRedis = FastifyRedisNamespacedInstance & Redis
+  export type FastifyValkey = FastifyValkeyNamespacedInstance & Valkey
 
-  export type FastifyRedisPluginOptions = (RedisOptions &
+  export type FastifyValkeyPluginOptions = (ValkeyOptions &
   {
     url?: string;
     namespace?: string;
   }) | {
-    client: Redis | Cluster;
+    client: Valkey | Cluster;
     namespace?: string;
     /**
      * @default false
@@ -30,12 +30,12 @@ declare namespace fastifyRedis {
     closeClient?: boolean;
   }
   /*
-   * @deprecated Use `FastifyRedisPluginOptions` instead
+   * @deprecated Use `FastifyValkeyPluginOptions` instead
    */
-  export type FastifyRedisPlugin = FastifyRedisPluginOptions
-  export const fastifyRedis: FastifyRedisPluginType
-  export { fastifyRedis as default }
+  export type FastifyValkeyPlugin = FastifyValkeyPluginOptions
+  export const fastifyValkey: FastifyValkeyPluginType
+  export { fastifyValkey as default }
 }
 
-declare function fastifyRedis (...params: Parameters<FastifyRedisPluginType>): ReturnType<FastifyRedisPluginType>
-export = fastifyRedis
+declare function fastifyValkey (...params: Parameters<FastifyValkeyPluginType>): ReturnType<FastifyValkeyPluginType>
+export = fastifyValkey

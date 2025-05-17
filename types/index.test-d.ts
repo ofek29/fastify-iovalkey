@@ -1,42 +1,42 @@
 import Fastify, { FastifyInstance } from 'fastify'
-import IORedis, { Redis } from 'iovalkey'
+import IOValkey, { Redis as Valkey } from 'iovalkey'
 import { expectAssignable, expectDeprecated, expectError, expectType } from 'tsd'
-import fastifyRedis, { FastifyRedis, FastifyRedisPlugin, FastifyRedisNamespacedInstance, FastifyRedisPluginOptions } from '..'
+import fastifyValkey, { FastifyValkey, FastifyValkeyPlugin, FastifyValkeyNamespacedInstance, FastifyValkeyPluginOptions } from '..'
 
 const app: FastifyInstance = Fastify()
-const redis: Redis = new IORedis({ host: 'localhost', port: 6379 })
-const redisCluster = new IORedis.Cluster([{ host: 'localhost', port: 6379 }])
+const valkey: Valkey = new IOValkey({ host: 'localhost', port: 6379 })
+const valkeyCluster = new IOValkey.Cluster([{ host: 'localhost', port: 6379 }])
 
-app.register(fastifyRedis, { host: '127.0.0.1' })
+app.register(fastifyValkey, { host: '127.0.0.1' })
 
-app.register(fastifyRedis, {
-  client: redis,
+app.register(fastifyValkey, {
+  client: valkey,
   closeClient: true,
   namespace: 'one'
 })
 
-app.register(fastifyRedis, {
+app.register(fastifyValkey, {
   namespace: 'two',
-  url: 'redis://127.0.0.1:6379'
+  url: 'valkey://127.0.0.1:6379'
 })
 
-expectAssignable<FastifyRedisPluginOptions>({
-  client: redisCluster
+expectAssignable<FastifyValkeyPluginOptions>({
+  client: valkeyCluster
 })
 
-expectError(app.register(fastifyRedis, {
+expectError(app.register(fastifyValkey, {
   namespace: 'three',
   unknownOption: 'this should trigger a typescript error'
 }))
 
 // Plugin property available
 app.after(() => {
-  expectAssignable<Redis>(app.redis)
-  expectType<FastifyRedis>(app.redis)
+  expectAssignable<Valkey>(app.iovalkey)
+  expectType<FastifyValkey>(app.iovalkey)
 
-  expectAssignable<FastifyRedisNamespacedInstance>(app.redis)
-  expectType<Redis>(app.redis.one)
-  expectType<Redis>(app.redis.two)
+  expectAssignable<FastifyValkeyNamespacedInstance>(app.iovalkey)
+  expectType<Valkey>(app.iovalkey.one)
+  expectType<Valkey>(app.iovalkey.two)
 })
 
-expectDeprecated({} as FastifyRedisPlugin)
+expectDeprecated({} as FastifyValkeyPlugin)
