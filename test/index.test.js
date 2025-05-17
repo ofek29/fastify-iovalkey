@@ -19,7 +19,7 @@ test.beforeEach(async () => {
   await fastify.close()
 })
 
-test('fastify.iovalkey should exist', async (t) => {
+test('Plugin should decorate instance as fastify.iovalkey', async (t) => {
   t.plan(1)
   const fastify = Fastify()
   fastify.register(fastifyValkey, {
@@ -32,7 +32,7 @@ test('fastify.iovalkey should exist', async (t) => {
   await fastify.close()
 })
 
-test('fastify.iovalkey should support url', async (t) => {
+test('Plugin should support url option for iovalkey client', async (t) => {
   t.plan(2)
   const fastify = Fastify()
 
@@ -68,7 +68,7 @@ test('fastify.iovalkey should support url', async (t) => {
   await fastify.close()
 })
 
-test('fastify.iovalkey should be the valkey client', async (t) => {
+test('fastify.iovalkey should be functional iovalkey client', async (t) => {
   t.plan(1)
   const fastify = Fastify()
 
@@ -78,14 +78,14 @@ test('fastify.iovalkey should be the valkey client', async (t) => {
 
   await fastify.ready()
 
-  await fastify.iovalkey.set('key', 'value')
-  const val = await fastify.iovalkey.get('key')
-  t.assert.deepStrictEqual(val, 'value')
+  await fastify.iovalkey.set('functional_client_key', 'functional_client_value')
+  const val = await fastify.iovalkey.get('functional_client_key')
+  t.assert.strictEqual(val, 'functional_client_value')
 
   await fastify.close()
 })
 
-test('fastify.iovalkey.test namespace should exist', async (t) => {
+test('fastify.iovalkey.test namespace should be properly registered', async (t) => {
   t.plan(2)
 
   const fastify = Fastify()
@@ -102,7 +102,7 @@ test('fastify.iovalkey.test namespace should exist', async (t) => {
   await fastify.close()
 })
 
-test('fastify.iovalkey.test should be the valkey client', async (t) => {
+test('fastify.iovalkey.test should be functional namespaced iovalkey client', async (t) => {
   t.plan(1)
   const fastify = Fastify()
 
@@ -113,14 +113,14 @@ test('fastify.iovalkey.test should be the valkey client', async (t) => {
 
   await fastify.ready()
 
-  await fastify.iovalkey.test.set('key_namespace', 'value_namespace')
-  const val = await fastify.iovalkey.test.get('key_namespace')
-  t.assert.deepStrictEqual(val, 'value_namespace')
+  await fastify.iovalkey.test.set('namespaced_client_key', 'namespaced_client_value')
+  const val = await fastify.iovalkey.test.get('namespaced_client_key')
+  t.assert.strictEqual(val, 'namespaced_client_value')
 
   await fastify.close()
 })
 
-test('promises support', async (t) => {
+test('Plugin should support promises API for iovalkey operations', async (t) => {
   t.plan(1)
   const fastify = Fastify()
 
@@ -130,22 +130,22 @@ test('promises support', async (t) => {
 
   await fastify.ready()
 
-  await fastify.iovalkey.set('key', 'value')
-  const val = await fastify.iovalkey.get('key')
-  t.assert.deepStrictEqual(val, 'value')
+  await fastify.iovalkey.set('promises_api_key', 'promises_api_value')
+  const val = await fastify.iovalkey.get('promises_api_key')
+  t.assert.strictEqual(val, 'promises_api_value')
 
   await fastify.close()
 })
 
-test('custom iovalkey client that is already connected', async (t) => {
+test('Plugin should accept custom iovalkey client that is already connected', async (t) => {
   t.plan(3)
   const fastify = Fastify()
   const Valkey = require('iovalkey')
   const valkey = new Valkey({ host: 'localhost', port: 6379 })
 
-  await valkey.set('key', 'value')
-  const val = await valkey.get('key')
-  t.assert.deepStrictEqual(val, 'value')
+  await valkey.set('custom_client_key', 'custom_client_value')
+  const val = await valkey.get('custom_client_key')
+  t.assert.strictEqual(val, 'custom_client_value')
 
   fastify.register(fastifyValkey, {
     client: valkey,
@@ -156,23 +156,23 @@ test('custom iovalkey client that is already connected', async (t) => {
 
   t.assert.deepStrictEqual(fastify.iovalkey, valkey)
 
-  await fastify.iovalkey.set('key2', 'value2')
-  const val2 = await fastify.iovalkey.get('key2')
-  t.assert.deepStrictEqual(val2, 'value2')
+  await fastify.iovalkey.set('custom_client_key2', 'custom_client_value2')
+  const val2 = await fastify.iovalkey.get('custom_client_key2')
+  t.assert.strictEqual(val2, 'custom_client_value2')
 
   await fastify.close()
   await fastify.iovalkey.quit()
 })
 
-test('If closeClient is enabled, close the client.', async (t) => {
+test('Plugin should close the client when closeClient is enabled', async (t) => {
   t.plan(4)
   const fastify = Fastify()
   const Valkey = require('iovalkey')
   const valkey = new Valkey({ host: 'localhost', port: 6379 })
 
-  await valkey.set('key', 'value')
-  const val = await valkey.get('key')
-  t.assert.deepStrictEqual(val, 'value')
+  await valkey.set('close_client_key1', 'close_client_value1')
+  const val = await valkey.get('close_client_key1')
+  t.assert.strictEqual(val, 'close_client_value1')
 
   fastify.register(fastifyValkey, {
     client: valkey,
@@ -183,9 +183,9 @@ test('If closeClient is enabled, close the client.', async (t) => {
 
   t.assert.deepStrictEqual(fastify.iovalkey, valkey)
 
-  await fastify.iovalkey.set('key2', 'value2')
-  const val2 = await fastify.iovalkey.get('key2')
-  t.assert.deepStrictEqual(val2, 'value2')
+  await fastify.iovalkey.set('close_client_key2', 'close_client_value2')
+  const val2 = await fastify.iovalkey.get('close_client_key2')
+  t.assert.strictEqual(val2, 'close_client_value2')
 
   const originalQuit = fastify.iovalkey.quit
   fastify.iovalkey.quit = (callback) => {
@@ -196,15 +196,15 @@ test('If closeClient is enabled, close the client.', async (t) => {
   await fastify.close()
 })
 
-test('If closeClient is enabled, close the client namespace.', async (t) => {
+test('Plugin should close the client namespace when closeClient is enabled', async (t) => {
   t.plan(4)
   const fastify = Fastify()
   const Valkey = require('iovalkey')
   const valkey = new Valkey({ host: 'localhost', port: 6379 })
 
-  await valkey.set('key', 'value')
-  const val = await valkey.get('key')
-  t.assert.deepStrictEqual(val, 'value')
+  await valkey.set('close_client_namespace_key1', 'close_client_namespace_value1')
+  const val = await valkey.get('close_client_namespace_key1')
+  t.assert.strictEqual(val, 'close_client_namespace_value1')
 
   fastify.register(fastifyValkey, {
     client: valkey,
@@ -216,9 +216,9 @@ test('If closeClient is enabled, close the client namespace.', async (t) => {
 
   t.assert.deepStrictEqual(fastify.iovalkey.foo, valkey)
 
-  await fastify.iovalkey.foo.set('key2', 'value2')
-  const val2 = await fastify.iovalkey.foo.get('key2')
-  t.assert.deepStrictEqual(val2, 'value2')
+  await fastify.iovalkey.foo.set('close_client_namespace_key2', 'close_client_namespace_value2')
+  const val2 = await fastify.iovalkey.foo.get('close_client_namespace_key2')
+  t.assert.strictEqual(val2, 'close_client_namespace_value2')
 
   const originalQuit = fastify.iovalkey.foo.quit
   fastify.iovalkey.foo.quit = (callback) => {
@@ -229,7 +229,7 @@ test('If closeClient is enabled, close the client namespace.', async (t) => {
   await fastify.close()
 })
 
-test('fastify.iovalkey.test should throw with duplicate connection namespaces', async (t) => {
+test('Plugin should throw with duplicate connection namespaces', async (t) => {
   t.plan(1)
 
   const namespace = 'test'
@@ -250,7 +250,7 @@ test('fastify.iovalkey.test should throw with duplicate connection namespaces', 
   await t.assert.rejects(fastify.ready(), new Error(`Valkey '${namespace}' instance namespace has already been registered`))
 })
 
-test('Should throw when trying to register multiple instances without giving a namespace', async (t) => {
+test('Should throw when registering multiple instances without namespace', async (t) => {
   t.plan(1)
 
   const fastify = Fastify()
@@ -312,7 +312,7 @@ test('Should throw when trying to connect on an invalid host', { skip: true }, a
   await t.assert.rejects(fastify.ready())
 })
 
-test('Should successfully create a Valkey client when registered with a `url` option and without a `client` option in a namespaced instance', async t => {
+test('Plugin should create iovalkey client with url option in namespaced instance', async t => {
   t.plan(2)
 
   const fastify = Fastify()
@@ -328,7 +328,7 @@ test('Should successfully create a Valkey client when registered with a `url` op
   t.assert.ok(fastify.iovalkey.test)
 })
 
-test('Should be able to register multiple namespaced @fastify/valkey instances', async t => {
+test('Plugin should register multiple namespaced instances successfully', async t => {
   t.plan(3)
 
   const fastify = Fastify()
@@ -379,7 +379,7 @@ test('Should throw when @fastify/valkey is initialized with a namespace and an o
   await t.assert.rejects(fastify.ready())
 })
 
-test('catch .ping() errors', async (t) => {
+test('Should catch ping errors correctly', async (t) => {
   t.plan(1)
   const fastify = Fastify()
   t.after(() => fastify.close())
