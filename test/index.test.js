@@ -405,6 +405,62 @@ test('catch .ping() errors', async (t) => {
   await t.assert.rejects(fastify.ready(), new Valkey.ReplyError('ping error'))
 })
 
+test('Should handle client end event correctly', async (t) => {
+  t.plan(1)
+  const fastify = Fastify()
+  t.after(() => fastify.close())
+
+  const fastifyValkey = proxyquire('..', {
+    iovalkey: function Valkey () {
+      this.ping = () => Promise.resolve()
+      this.quit = () => {}
+      this.off = function () { return this }
+      this.on = function (event, handler) {
+        if (event === 'end') {
+          handler(new Error('Connection ended'))
+        }
+        return this
+      }
+      this.status = 'connecting'
+      return this
+    }
+  })
+
+  fastify.register(fastifyValkey)
+
+  await t.assert.rejects(fastify.ready(), new Error('Connection ended'))
+})
+
+test('Should handle ENOTFOUND errors correctly', async (t) => {
+  t.plan(1)
+  const fastify = Fastify()
+  t.after(() => fastify.close())
+
+  const fastifyValkey = proxyquire('..', {
+    iovalkey: function Valkey () {
+      this.ping = () => Promise.resolve()
+      this.quit = () => {}
+      this.off = function () { return this }
+      this.on = function (event, handler) {
+        if (event === 'error') {
+          const error = new Error('Host not found')
+          error.code = 'ENOTFOUND'
+          handler(error)
+        }
+        return this
+      }
+      this.status = 'connecting'
+      return this
+    }
+  })
+
+  fastify.register(fastifyValkey)
+
+  const error = new Error('Host not found')
+  error.code = 'ENOTFOUND'
+  await t.assert.rejects(fastify.ready(), error)
+})
+
 setInterval(() => {
   whyIsNodeRunning()
 }, 5000).unref()

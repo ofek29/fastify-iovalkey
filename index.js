@@ -54,7 +54,6 @@ function fastifyValkey (fastify, options, next) {
     return client
   }
 
-  //* c8 ignore start */
   const onEnd = function (err) {
     client
       .off('ready', onReady)
@@ -64,7 +63,6 @@ function fastifyValkey (fastify, options, next) {
 
     next(err)
   }
-  //* c8 ignore stop */
 
   const onReady = function () {
     client
@@ -75,7 +73,6 @@ function fastifyValkey (fastify, options, next) {
     next()
   }
 
-  //* c8 ignore start */
   const onError = function (err) {
     if (err.code === 'ENOTFOUND') {
       onEnd(err)
@@ -92,7 +89,6 @@ function fastifyValkey (fastify, options, next) {
       onEnd(err)
     }
   }
-  //* c8 ignore stop */
 
   // iovalkey provides it in a .status property
   if (client && client.status === 'ready') {
