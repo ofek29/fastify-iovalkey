@@ -1,71 +1,60 @@
 'use strict'
 
 const fp = require('fastify-plugin')
-const Redis = require('iovalkey')
+const Valkey = require('iovalkey')
 
-function fastifyRedis (fastify, options, next) {
-  const { namespace, url, closeClient = false, ...redisOptions } = options
+function fastifyValkey (fastify, options, next) {
+  const { namespace, url, closeClient = false, ...valkeyOptions } = options
 
   let client = options.client || null
 
   if (namespace) {
-    if (!fastify.redis) {
-      fastify.decorate('redis', Object.create(null))
+    if (!fastify.iovalkey) {
+      fastify.decorate('iovalkey', Object.create(null))
+    }
+    if (fastify.iovalkey[namespace]) {
+      return next(new Error(`Valkey '${namespace}' instance namespace has already been registered`))
     }
 
-    if (fastify.redis[namespace]) {
-      return next(new Error(`Redis '${namespace}' instance namespace has already been registered`))
+    const closeNamedInstance = (fastify) => fastify.iovalkey[namespace].quit()
+
+    client = setupClient(fastify, client, url, closeClient, valkeyOptions, closeNamedInstance)
+
+    fastify.iovalkey[namespace] = client
+  } else {
+    if (fastify.iovalkey) {
+      return next(new Error('@fastify/valkey has already been registered'))
     }
 
-    const closeNamedInstance = (fastify) => fastify.redis[namespace].quit()
+    const close = (fastify) => { fastify.iovalkey.quit() }
 
+    client = setupClient(fastify, client, url, closeClient, valkeyOptions, close)
+
+    fastify.decorate('iovalkey', client)
+  }
+
+  function setupClient (fastify, client, url, closeClient, valkeyOptions, closeInstance) {
     if (client) {
       if (closeClient === true) {
-        fastify.addHook('onClose', closeNamedInstance)
+        fastify.addHook('onClose', closeInstance)
       }
     } else {
       try {
         if (url) {
-          client = new Redis(url, redisOptions)
+          client = new Valkey(url, valkeyOptions)
         } else {
-          client = new Redis(redisOptions)
+          client = new Valkey(valkeyOptions)
         }
       } catch (err) {
         return next(err)
       }
 
-      fastify.addHook('onClose', closeNamedInstance)
+      fastify.addHook('onClose', closeInstance)
     }
-
-    fastify.redis[namespace] = client
-  } else {
-    if (fastify.redis) {
-      return next(new Error('@fastify/redis has already been registered'))
-    } else {
-      if (client) {
-        if (closeClient === true) {
-          fastify.addHook('onClose', close)
-        }
-      } else {
-        try {
-          if (url) {
-            client = new Redis(url, redisOptions)
-          } else {
-            client = new Redis(redisOptions)
-          }
-        } catch (err) {
-          return next(err)
-        }
-
-        fastify.addHook('onClose', close)
-      }
-
-      fastify.decorate('redis', client)
-    }
+    return client
   }
 
-  // Testing this make the process crash on latest TAP :(
-  /* c8 ignore start */
+  //* c8 ignore start */
   const onEnd = function (err) {
     client
       .off('ready', onReady)
@@ -75,7 +64,7 @@ function fastifyRedis (fastify, options, next) {
 
     next(err)
   }
-  /* c8 ignore stop */
+  //* c8 ignore stop */
 
   const onReady = function () {
     client
@@ -86,8 +75,7 @@ function fastifyRedis (fastify, options, next) {
     next()
   }
 
-  // Testing this make the process crash on latest TAP :(
-  /* c8 ignore start */
+  //* c8 ignore start */
   const onError = function (err) {
     if (err.code === 'ENOTFOUND') {
       onEnd(err)
@@ -100,18 +88,18 @@ function fastifyRedis (fastify, options, next) {
     // fails.
     // Any other errors during startup will
     // trigger the 'end' event.
-    if (err instanceof Redis.ReplyError) {
+    if (err instanceof Valkey.ReplyError) {
       onEnd(err)
     }
   }
-  /* c8 ignore stop */
+  //* c8 ignore stop */
 
   // iovalkey provides it in a .status property
-  if (client.status === 'ready') {
+  if (client && client.status === 'ready') {
     // client is already connected, do not register event handlers
     // call next() directly to avoid ERR_AVVIO_PLUGIN_TIMEOUT
     next()
-  } else {
+  } else if (client) {
     // ready event can still be emitted
     client
       .on('end', onEnd)
@@ -122,13 +110,9 @@ function fastifyRedis (fastify, options, next) {
   }
 }
 
-function close (fastify) {
-  return fastify.redis.quit()
-}
-
-module.exports = fp(fastifyRedis, {
+module.exports = fp(fastifyValkey, {
   fastify: '5.x',
-  name: '@fastify/redis'
+  name: '@fastify/iovalkey'
 })
-module.exports.default = fastifyRedis
-module.exports.fastifyRedis = fastifyRedis
+module.exports.default = fastifyValkey
+module.exports.fastifyValkey = fastifyValkey
