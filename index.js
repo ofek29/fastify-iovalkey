@@ -23,7 +23,7 @@ function fastifyValkey (fastify, options, next) {
     fastify.iovalkey[namespace] = client
   } else {
     if (fastify.iovalkey) {
-      return next(new Error('@fastify/valkey has already been registered'))
+      return next(new Error('@fastify/iovalkey has already been registered'))
     }
 
     const close = (fastify) => { fastify.iovalkey.quit() }

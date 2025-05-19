@@ -264,7 +264,7 @@ test('Should throw when registering multiple instances without namespace', async
       host: '127.0.0.1'
     })
 
-  await t.assert.rejects(fastify.ready(), new Error('@fastify/valkey has already been registered'))
+  await t.assert.rejects(fastify.ready(), new Error('@fastify/iovalkey has already been registered'))
 })
 
 test('Should not throw within different contexts', async (t) => {
@@ -335,7 +335,7 @@ test('Plugin should register multiple namespaced instances successfully', async 
   t.assert.ok(fastify.iovalkey.two)
 })
 
-test('Should throw when @fastify/valkey is initialized with an option that makes Valkey throw', async (t) => {
+test('Should throw when @fastify/iovalkey is initialized with an option that makes Valkey throw', async (t) => {
   t.plan(1)
 
   const fastify = Fastify()
@@ -349,7 +349,7 @@ test('Should throw when @fastify/valkey is initialized with an option that makes
   await t.assert.rejects(fastify.ready())
 })
 
-test('Should throw when @fastify/valkey is initialized with a namespace and an option that makes Valkey throw', async (t) => {
+test('Should throw when @fastify/iovalkey is initialized with a namespace and an option that makes Valkey throw', async (t) => {
   t.plan(1)
 
   const fastify = Fastify()
