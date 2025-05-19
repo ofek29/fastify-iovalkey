@@ -26,7 +26,7 @@ Add it to your project with `register` and you are done!
 
 ### Create a new Valkey Client
 
-the ``options`` that you pass to `register` will be passed to the Valkey client.
+the `options` that you pass to `register` will be passed to the Valkey client.
 
 ```js
 import Fastify from 'fastify'
@@ -131,7 +131,7 @@ await fastify.register(fastifyValkey, { client })
 Note: by default, *@fastify/iovalkey* will **not** automatically close the client
 connection when the Fastify server shuts down.
 
-To automatically close the client connection, set clientClose to true.
+To automatically close the client connection, set closeClient to true.
 
 ```js
 await fastify.register(fastifyValkey, { client, closeClient: true })
