@@ -297,21 +297,6 @@ test('Should not throw within different contexts', async (t) => {
   t.assert.ok(fastify)
 })
 
-// Skipped because it makes TAP crash
-test('Should throw when trying to connect on an invalid host', { skip: true }, async (t) => {
-  t.plan(1)
-
-  const fastify = Fastify({ pluginTimeout: 20000 })
-  t.after(() => fastify.close())
-
-  fastify
-    .register(fastifyValkey, {
-      host: 'invalid_host'
-    })
-
-  await t.assert.rejects(fastify.ready())
-})
-
 test('Plugin should create iovalkey client with url option in namespaced instance', async t => {
   t.plan(2)
 
