@@ -264,7 +264,7 @@ try {
   process.exit(1)
 }
 ```
-*NB you can find more information about Valkey streams and the relevant commands [here](https://valkey.io/topics/streams-intro/) end [here](https://valkey.io/commands/#stream).*
+*NB you can find more information about Valkey streams and the relevant commands [here](https://valkey.io/topics/streams-intro/) and [here](https://valkey.io/commands/#stream).*
 
 ## Valkey connection error
 The majority of errors are silent due to the `iovalkey` silent error handling but during the plugin registration it will check that the connection with the valkey instance is correctly established.
