@@ -2,10 +2,8 @@ name: CI
 
 on:
   push:
-    branches:
-     - main
-     - next
-     - 'v*'
+    branches: 
+    - main
     paths-ignore:
       - 'docs/**'
       - '*.md'
@@ -13,17 +11,92 @@ on:
     paths-ignore:
       - 'docs/**'
       - '*.md'
-
+      
 permissions:
   contents: read
-
+  
 jobs:
-  test:
+  dependency-review:
+    name: Dependency Review
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: read
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Dependency review
+        uses: actions/dependency-review-action@da24556b548a50705dd671f47852072ea4c105d9 # v4.7.1
+
+  lint:
+    name: Lint Code
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          check-latest: true
+          node-version: lts/*
+
+      - name: Install dependencies
+        run: npm install --ignore-scripts
+
+      - name: Lint code
+        run: npm run lint
+
+  test:
+    name: Node.js ${{ matrix.node-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [20, 22, 24]
+    services:
+      valkey:
+        image: valkey/valkey:latest
+        ports:
+          - '6379:6379'
+        options: '--entrypoint valkey-server'
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Setup Node ${{ matrix.node-version }}
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          check-latest: true
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install dependencies
+        run: npm install --ignore-scripts
+
+      - name: Run tests
+        run: npm test
+
+  automerge:
+    name: Automerge Dependabot PRs
+    if: >
+        github.event_name == 'pull_request' &&
+        github.event.pull_request.user.login == 'dependabot[bot]'
+    needs: [lint, test]
+    permissions:
       pull-requests: write
-    uses: fastify/workflows/.github/workflows/plugins-ci-redis.yml@v5
-    with:
-      lint: true
-      license-check: true
-      license-check-allowed-additional: 'Apache*'
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: fastify/github-action-merge-dependabot@e820d631adb1d8ab16c3b93e5afe713450884a4a # v3.11.1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          target: major        
