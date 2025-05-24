@@ -1,4 +1,4 @@
-# @fastify/iovalkey
+# @ofek.a/fastify-iovalkey
 
 Fastify Valkey connection plugin, with this you can share the same Valkey connection in every part of your server.
 
@@ -7,7 +7,7 @@ Under the hood [iovalkey](https://github.com/valkey-io/iovalkey) is used as clie
 ## Install
 
 ```
-npm i @fastify/iovalkey
+npm i @ofek.a/fastify-iovalkey
 ```
 
 ### Compatibility
@@ -30,7 +30,7 @@ the `options` that you pass to `register` will be passed to the Valkey client.
 
 ```js
 import Fastify from 'fastify'
-import fastifyValkey from '@fastify/iovalkey'
+import fastifyValkey from '@ofek.a/fastify-iovalkey'
 
 const fastify = Fastify()
 
@@ -57,7 +57,7 @@ The client is automatically closed when the fastify instance is closed.
 
 ```js
 import Fastify from 'fastify'
-import fastifyValkey from '@fastify/iovalkey'
+import fastifyValkey from '@ofek.a/fastify-iovalkey'
 
 const fastify = Fastify({ logger: true })
 
@@ -107,7 +107,7 @@ closed.
 ```js
 import Fastify from 'fastify'
 import Valkey from 'iovalkey'
-import fastifyValkey from '@fastify/iovalkey'
+import fastifyValkey from '@ofek.a/fastify-iovalkey'
 
 const fastify = Fastify()
 const client = new Valkey({ host: 'localhost', port: 6379 })
@@ -120,7 +120,7 @@ You can also supply a *Valkey Cluster* instance to the client:
 ```js
 import Fastify from 'fastify'
 import Valkey from 'iovalkey'
-import fastifyValkey from '@fastify/iovalkey'
+import fastifyValkey from '@ofek.a/fastify-iovalkey'
 
 const fastify = Fastify()
 const client = new Valkey.Cluster([{ host: 'localhost', port: 6379 }]);
@@ -128,7 +128,7 @@ const client = new Valkey.Cluster([{ host: 'localhost', port: 6379 }]);
 await fastify.register(fastifyValkey, { client })
 ```
 
-Note: by default, *@fastify/iovalkey* will **not** automatically close the client
+Note: by default, *@ofek.a/fastify-iovalkey* will **not** automatically close the client
 connection when the Fastify server shuts down.
 
 To automatically close the client connection, set closeClient to true.
@@ -144,7 +144,7 @@ By using the `namespace` option you can register multiple Valkey client instance
 ```js
 import Fastify from 'fastify'
 import Valkey from 'iovalkey'
-import fastifyValkey from '@fastify/iovalkey'
+import fastifyValkey from '@ofek.a/fastify-iovalkey'
 
 const fastify = Fastify()
 const valkeyClient = new Valkey({ host: 'localhost', port: 6379 })
@@ -221,7 +221,7 @@ try {
 
 ```js
 import Fastify from 'fastify'
-import fastifyValkey from '@fastify/iovalkey'
+import fastifyValkey from '@ofek.a/fastify-iovalkey'
 
 const fastify = Fastify()
 

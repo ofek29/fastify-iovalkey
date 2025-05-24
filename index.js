@@ -108,7 +108,7 @@ function fastifyValkey (fastify, options, next) {
 
 module.exports = fp(fastifyValkey, {
   fastify: '5.x',
-  name: '@fastify/iovalkey'
+  name: '@ofek.a/fastify-iovalkey'
 })
 module.exports.default = fastifyValkey
 module.exports.fastifyValkey = fastifyValkey
