@@ -1,0 +1,9 @@
+coverage
+
+test/
+
+types/index.test-d.ts
+
+eslint.config.js
+
+package-lock.json
