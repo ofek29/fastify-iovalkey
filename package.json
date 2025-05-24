@@ -1,5 +1,5 @@
 {
-  "name": "@fastify/iovalkey",
+  "name": "@ofek.a/fastify-iovalkey",
   "version": "0.0.0",
   "description": "Plugin to share a common Valkey connection across Fastify.",
   "main": "index.js",
